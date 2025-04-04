@@ -80,55 +80,93 @@ export async function userLogin(req, res) {
 }
 
 export async function logoutUser(req, res) {
-    try {
-        res.cookie("jwt", "", {
-            httpOnly: true,
-            expires: new Date(0)
-        })
-        return res.json({
-            message: "LogOut successfully!",
-            error: false,
-            success: true
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
-    }
+  try {
+    res.cookie("jwt", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    return res.json({
+      message: "LogOut successfully!",
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
 }
 
-export async function getAllUsers(req,res) {
-    try {
-        const Users = await User.find({})
-        return res.json({
-            message: "User Retrieved Successfully!",
-            error: false,
-            success: true,
-            data: Users
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
-    }
+export async function getAllUsers(req, res) {
+  try {
+    const Users = await User.find({});
+    return res.json({
+      message: "User Retrieved Successfully!",
+      error: false,
+      success: true,
+      data: Users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
 }
 
 export async function getCurrentUserController(req, res) {
-    try {
-        return res.json({
-            message: "Operation successful",
-            error: false,
-            success: true
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      return res.json({
+        message: "Online user Retrieved Successfully! ",
+        error: false,
+        success: true,
+        data: user,
+      });
+    } else {
+      res.status(404);
+      throw new Error("User not found");
     }
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+}
+
+export async function updateCurrentUserProfile(req, res) {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.username = req.body.username || user.username;
+      user.email = req.body.email || user.email;
+      if(req.body.password){
+        const salt = await bcryptjs.genSalt(10)
+        const hashedPassword = await bcryptjs.hash(req.body.password, salt)
+        user.password = hashedPassword
+      }
+      const updatedUser = await user.save()
+      return res.json({
+        message: "Profile Updated Successfully!",
+        error: false,
+        success: true,
+        data: updatedUser
+      });
+    }else{
+        res.status(404)
+        throw new Error("User not found")
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
 }
