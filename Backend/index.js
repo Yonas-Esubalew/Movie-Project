@@ -6,6 +6,7 @@ import cors from "cors"
 // files
 import connectDB from "./config/db.js";
 import router from "./routes/userRoutes.js";
+import genreRouter from "./routes/genreRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -28,5 +29,6 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT || 3000;
 app.use("/api/v1/users", router);
+app.use("/api/v1/genre",genreRouter)
 
 app.listen(PORT, () => console.log(`Server is Running on Port ${PORT}`));

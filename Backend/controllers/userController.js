@@ -44,37 +44,56 @@ export async function createUser(req, res) {
 export async function userLogin(req, res) {
   try {
     const { email, password } = req.body;
+    
+    // Check for missing fields
     if (!email || !password) {
-      res.status(401).json({
-        message: "Please fill All Required Fields",
+      return res.status(400).json({  // Added return
+        message: "Please fill all required fields",
+        error: true
       });
     }
+
     const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-      const isPasswordValid = await bcryptjs.compare(
-        password,
-        existingUser.password
-      );
-      if (isPasswordValid) {
-        generateToken(res, existingUser._id);
-      } else {
-        res.status(401).json({ message: "Invalid Password" });
-      }
-    } else {
-      res.status(401).json({ message: "User Not found" });
+    if (!existingUser) {
+      return res.status(404).json({  // Added return
+        message: "User not found",
+        error: true
+      });
     }
-    return res.json({
-      message: "Login  successfully!",
+
+    const isPasswordValid = await bcryptjs.compare(
+      password,
+      existingUser.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({  // Added return
+        message: "Invalid password",
+        error: true
+      });
+    }
+
+    // Generate token and send success response
+    const token = generateToken(res, existingUser._id);
+    
+    return res.status(200).json({  // Added return
+      message: "Login successful!",
       error: false,
       success: true,
-      data: existingUser,
+      data: {
+        _id: existingUser._id,
+        email: existingUser.email,
+        // Include other user fields as needed
+        token: token  // Assuming generateToken returns the token
+      }
     });
+
   } catch (error) {
     return res.status(500).json({
-      message: error.message || error,
+      message: error.message || "Internal server error",
       error: true,
-      success: false,
+      success: false
     });
   }
 }

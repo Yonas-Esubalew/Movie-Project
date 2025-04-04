@@ -5,12 +5,13 @@ import Loader from "../../components/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import { useRegisterMutation } from "../../redux/api/users";
+
+
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -43,8 +44,6 @@ const Register = () => {
       }
     }
   };
-
-
 
   return (
     <div className="pl-[10rem] flex flex-wrap">
