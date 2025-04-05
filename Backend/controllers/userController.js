@@ -44,21 +44,22 @@ export async function createUser(req, res) {
 export async function userLogin(req, res) {
   try {
     const { email, password } = req.body;
-    
-    // Check for missing fields
+
     if (!email || !password) {
-      return res.status(400).json({  // Added return
+      return res.status(400).json({
+        // Added return
         message: "Please fill all required fields",
-        error: true
+        error: true,
       });
     }
 
     const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
-      return res.status(404).json({  // Added return
+      return res.status(404).json({
+        // Added return
         message: "User not found",
-        error: true
+        error: true,
       });
     }
 
@@ -68,32 +69,30 @@ export async function userLogin(req, res) {
     );
 
     if (!isPasswordValid) {
-      return res.status(401).json({  // Added return
+      return res.status(401).json({
+        // Added return
         message: "Invalid password",
-        error: true
+        error: true,
       });
     }
 
     // Generate token and send success response
     const token = generateToken(res, existingUser._id);
-    
-    return res.status(200).json({  // Added return
+
+    return res.status(200).json({
       message: "Login successful!",
       error: false,
       success: true,
       data: {
-        _id: existingUser._id,
-        email: existingUser.email,
-        // Include other user fields as needed
-        token: token  // Assuming generateToken returns the token
-      }
+        existingUser,
+        token: token,
+      },
     });
-
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Internal server error",
       error: true,
-      success: false
+      success: false,
     });
   }
 }
@@ -162,24 +161,30 @@ export async function getCurrentUserController(req, res) {
 export async function updateCurrentUserProfile(req, res) {
   try {
     const user = await User.findById(req.user._id);
+
     if (user) {
       user.username = req.body.username || user.username;
       user.email = req.body.email || user.email;
-      if(req.body.password){
-        const salt = await bcryptjs.genSalt(10)
-        const hashedPassword = await bcryptjs.hash(req.body.password, salt)
-        user.password = hashedPassword
+
+      if (req.body.password) {
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(req.body.password, salt);
+        user.password = hashedPassword;
       }
-      const updatedUser = await user.save()
+
+      const updatedUser = await user.save();
       return res.json({
         message: "Profile Updated Successfully!",
         error: false,
         success: true,
-        data: updatedUser
+        data: updatedUser,
       });
-    }else{
-        res.status(404)
-        throw new Error("User not found")
+    } else {
+      return res.status(404).json({
+        message: "User not found",
+        error: true,
+        success: false,
+      });
     }
   } catch (error) {
     return res.status(500).json({

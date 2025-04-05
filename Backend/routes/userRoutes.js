@@ -10,14 +10,11 @@ import {
 import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
-
 router.route("/").post(createUser);
 router.route("/login").post(userLogin);
 router.route("/logout").post(logoutUser);
 router.route("/").get(authenticate, authorizeAdmin, getAllUsers);
-router
-  .route("/profile")
-  .get(authenticate, getCurrentUserController)
-  .put(authenticate, updateCurrentUserProfile);
+router.route("/profile").get(authenticate, getCurrentUserController);
+router.route("/profile").put(authenticate, updateCurrentUserProfile);
 
 export default router;

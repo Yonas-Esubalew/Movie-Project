@@ -11,9 +11,9 @@ import {
 
 const genreRouter = express.Router();
 
-genreRouter.route("/").post(authenticate, authorizeAdmin, createGenre);
-genreRouter.route("/:id").put(authenticate, authorizeAdmin, updateGenre);
-genreRouter.route("/:id").delete(authenticate, authorizeAdmin, removeGenre);
+genreRouter.route("/").post( createGenre);
+genreRouter.route("/:id").put(updateGenre);
+genreRouter.route("/:id").delete( removeGenre);
 genreRouter.route("/genres").get(listGenres);
 genreRouter.route("/:id").get(readGenre);
 

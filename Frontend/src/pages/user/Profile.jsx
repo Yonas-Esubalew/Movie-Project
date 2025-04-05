@@ -12,6 +12,7 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const { userInfo } = useSelector((state) => state.auth);
+  console.log("UserInfo From profile" , userInfo)
   const [updateProfile, { isLoading: loadingUpdateProfile }] =
     useProfileMutation();
   useEffect(() => {

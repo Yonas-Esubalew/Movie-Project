@@ -7,20 +7,23 @@ import cors from "cors"
 import connectDB from "./config/db.js";
 import router from "./routes/userRoutes.js";
 import genreRouter from "./routes/genreRoutes.js";
+import MoviesRouter from "./routes/MoviesRouter.js";
+import UploadRouter from "./routes/uploadRoutes.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// Allow requests from your frontend
 app.use(
   cors({
-    origin: process.env.FRONT_END_URI, // frontend origin
+    origin: process.env.FRONT_END_URI,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // if you're using cookies/auth
+    credentials: true, 
   })
 );
+
+
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,5 +33,10 @@ app.use(cookieParser());
 const PORT = process.env.PORT || 3000;
 app.use("/api/v1/users", router);
 app.use("/api/v1/genre",genreRouter)
+app.use("/api/v1/movies", MoviesRouter)
+app.use("/api/v1/upload", UploadRouter)
 
-app.listen(PORT, () => console.log(`Server is Running on Port ${PORT}`));
+const __dirname = path.resolve()
+app.use("/uploads", express.static(path.join(__dirname + "/uploads")))
+
+app.listen(PORT, () => console.log(`Server is Running on Port ${PORT}👍`));
