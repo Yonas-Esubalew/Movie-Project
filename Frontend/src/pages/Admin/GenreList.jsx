@@ -13,8 +13,7 @@ const GenreList = () => {
   const { data: response, refetch } = useFetchGenresQuery();
   console.log("Fetch response", response);
 
-  // Use correct property name, depending on your API response structure
-  const genres = Array.isArray(response?.genres) ? response.genres : [];
+  const genres = Array.isArray(response?.all) ? response.all : [];
 
   const [name, setName] = useState("");
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -60,11 +59,12 @@ const GenreList = () => {
         id: selectedGenre._id,
         updateGenre: { name: updatingName },
       }).unwrap();
+      console.log("Update result:", result);
 
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`${result?.genre?.name} is updated`);
+        toast.success(`${result?.updatedGenre?.name} is updated`);
         refetch();
         setSelectedGenre(null);
         setUpdatingName("");
@@ -79,11 +79,12 @@ const GenreList = () => {
   const handleDeleteGenre = async () => {
     try {
       const result = await deleteGenre(selectedGenre._id).unwrap();
+      console.log("Deleted result:", result);
 
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`${result?.genre?.name} is deleted.`);
+        toast.success(`${result?.removed?.name} is deleted.`);
         refetch();
         setSelectedGenre(null);
         setModalVisible(false);
@@ -98,15 +99,12 @@ const GenreList = () => {
     <div className="ml-[10rem] flex flex-col md:flex-row">
       <div className="md:w-3/4 p-3">
         <h1 className="h-12 text-xl font-semibold mb-4">Manage Genres</h1>
-
         <GenreForm
           value={name}
           setValue={setName}
           handleSubmit={handleCreateGenre}
         />
-
         <br />
-
         <div className="flex flex-wrap">
           {genres.length === 0 ? (
             <p className="text-gray-500 ml-3">No genres found.</p>

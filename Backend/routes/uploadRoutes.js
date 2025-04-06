@@ -19,33 +19,37 @@ const fileFilter = (req, file, cb) => {
   const filetypes = /jpe?g|png|webp/;
   const mimetypes = /image\/jpe?g|image\/png|image\/webp/;
 
-  const extname = path.extname(file.originalname);
+  const extname = path.extname(file.originalname).toLowerCase();
   const mimetype = file.mimetype;
 
-  if (filetypes.test(extname) && mimetypes.test(mimetypes)) {
+  if (filetypes.test(extname) && mimetypes.test(mimetype)) {
     cb(null, true);
   } else {
     cb(new Error("Images only"), false);
   }
 };
 
+const upload = multer({ storage, fileFilter });
+const uploadSingleImage = upload.single("image");
 
-const upload = multer({storage, fileFilter})
-const uploadSingleImage = upload.single("image")
-
-UploadRouter.post("/", (req,res)=>{
-    uploadSingleImage(req,res, (err)=> {
-        if(err){
-            res.status(400).send({message: err.message})
-        } else if (req.file) {
-            res.status(200).send({message: "Image Uploaded Successfully",
-                image: `/${req.file.path}`
-            })
-        } else {
-            res.status(400).send({message: "No Image file Provided"})
-        }
-    })
-})
-
+UploadRouter.post("/", (req, res) => {
+  uploadSingleImage(req, res, (err) => {
+    console.log("📸 [upload] file:", req.file);
+    console.log("📨 [upload] body:", req.body);
+    console.log("🧨 [upload] error:", err);
+    if (err) {
+      res.status(400).send({ message: err.message });
+    } else if (req.file) {
+      res
+        .status(200)
+        .send({
+          message: "Image Uploaded Successfully",
+          image: `/${req.file.path}`,
+        });
+    } else {
+      res.status(400).send({ message: "No Image file Provided" });
+    }
+  });
+});
 
 export default UploadRouter;
